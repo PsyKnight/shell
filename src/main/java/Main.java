@@ -10,7 +10,7 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
 
-        do {
+        while (true) {
             System.out.print("$ ");
 
             String input = scanner.nextLine().trim();
@@ -35,12 +35,18 @@ public class Main {
                     System.out.println(Arrays.toString(pathCommands));
                 }
 
+                case "pwd" -> pwd();
+
                 default -> {
                     // Validation of command is done inside try-catch in executeFile
                     executeFile(commands);
                 }
             }
-        } while (true);
+        }
+    }
+
+    public static void pwd() {
+        System.out.println(System.getProperty("user.dir"));
     }
 
     public static void echo(String input) {

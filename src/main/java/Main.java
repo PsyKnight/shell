@@ -35,10 +35,9 @@ public class Main {
 
                 case "cd" -> changeDirectory(arguments);
 
-                default -> {
+                default ->
                     // Validation of command is done inside try-catch in executeFile
-                    executeFile(input);
-                }
+                        executeFile(input);
             }
         }
     }
@@ -60,30 +59,41 @@ public class Main {
 
         String path = arguments[0];
 
-       try {
-           // Convert current directory (String) to Path object
-           Path base = Paths.get(System.getProperty("user.dir"));
 
-           // resolve - join the base path with given path
-           // normalize - change . or .. to direct form
-           // Ex - "C:/Users/Admin/Documents/reports/../images/./logo.png"
-           // -> "C:/Users/Admin/Documents/images/logo.png"
-           Path absPath = base.resolve(path).normalize();
+        try {
+            if (path.equals("~")) {
+                path = System.getenv("HOME");
 
-           if (!Files.exists(absPath)) {
-               System.err.println("cd: " + " : no such file or directory");
-               return;
-           }
+                if (path == null) {
+                    path = System.getenv("USERPROFILE");
+                } else {
+                    path = System.getProperty("user.home");
+                }
+            }
 
-           if (!Files.isDirectory(absPath)) {
-               System.err.println("cd: " + " : is not a directory");
-               return;
-           }
+            // Convert current directory (String) to Path object
+            Path base = Paths.get(System.getProperty("user.dir"));
 
-           System.setProperty("user.dir", absPath.toString());
-       } catch (InvalidPathException e) {
-           System.err.println("cd: invalid path");
-       }
+            // resolve - join the base path with given path
+            // normalize - change . or .. to direct form
+            // Ex - "C:/Users/Admin/Documents/reports/../images/./logo.png"
+            // -> "C:/Users/Admin/Documents/images/logo.png"
+            Path absPath = base.resolve(path).normalize();
+
+            if (!Files.exists(absPath)) {
+                System.err.println("cd: " + " : no such file or directory");
+                return;
+            }
+
+            if (!Files.isDirectory(absPath)) {
+                System.err.println("cd: " + " : is not a directory");
+                return;
+            }
+
+            System.setProperty("user.dir", absPath.toString());
+        } catch (InvalidPathException e) {
+            System.err.println("cd: invalid path");
+        }
     }
 
     public static void echo(String[] arguments) {

@@ -1,5 +1,9 @@
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Set;
@@ -49,24 +53,37 @@ public class Main {
             return;
         }
 
+        if (arguments.length == 0) {
+            System.out.println("cd: requires one argument");
+            return;
+        }
+
         String path = arguments[0];
 
-        File dir = validateDirPath(path);
+       try {
+           // Convert current directory (String) to Path object
+           Path base = Paths.get(System.getProperty("user.dir"));
 
-        if (dir != null) {
-            System.setProperty("user.dir", path);
-        } else {
-            System.out.println("cd: " + path + " No such file or directory");
-        }
-    }
+           // resolve - join the base path with given path
+           // normalize - change . or .. to direct form
+           // Ex - "C:/Users/Admin/Documents/reports/../images/./logo.png"
+           // -> "C:/Users/Admin/Documents/images/logo.png"
+           Path absPath = base.resolve(path).normalize();
 
-    public static File validateDirPath(String path) {
-        File dir = new File(path);
+           if (!Files.exists(absPath)) {
+               System.err.println("cd: " + " : no such file or directory");
+               return;
+           }
 
-        if (dir.exists() && dir.isDirectory()) {
-            return dir;
-        }
-        return null;
+           if (!Files.isDirectory(absPath)) {
+               System.err.println("cd: " + " : is not a directory");
+               return;
+           }
+
+           System.setProperty("user.dir", absPath.toString());
+       } catch (InvalidPathException e) {
+           System.err.println("cd: invalid path");
+       }
     }
 
     public static void echo(String[] arguments) {
